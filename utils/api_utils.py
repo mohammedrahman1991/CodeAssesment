@@ -1,6 +1,6 @@
 import requests
 def get_user_records_from_api(driver):
-    """
+    """z
     Fetch user records from the OrangeHRM API using the current session's cookies.
     """
     url = "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/admin/users?limit=50&offset=0&sortField=u.userName&sortOrder=ASC"

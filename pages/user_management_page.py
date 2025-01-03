@@ -169,8 +169,7 @@ class UserManagementPage:
 
         # Click the trash icon
         delete_icon = self.driver.find_element(
-            By.XPATH,
-            f"//div[@class='oxd-table-body']//div[contains(text(),'{username}')]/ancestor::div[@role='row']//button[@title='Delete']"
+            By.XPATH,"//div[@class='orangehrm-container']//button[1]"
         )
         delete_icon.click()
 

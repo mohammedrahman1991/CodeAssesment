@@ -1,6 +1,7 @@
 import pytest
 import time
 
+from conftest import driver
 from pages.login_page import LoginPage
 from pages.user_management_page import UserManagementPage
 from utils.api_utils import get_user_records_from_api
@@ -41,6 +42,41 @@ class TestUserManagement:
         3. Delete testUser2
         4. Validate API and UI data
         """
+        # ------------------------------
+        # # STEP 1: Add testUser1 (Admin, Enabled)
+        # # ------------------------------
+        self.user_mgmt_page.click_add_button()
+        self.user_mgmt_page.click_top_dropdown_in_form()
+        self.user_mgmt_page.select_option_in_form("Admin")
+        self.user_mgmt_page.click_bottom_dropdown_in_form()
+        self.user_mgmt_page.select_option_in_form("Enabled")
+
+        # Use a fixed employee name, e.g. "Orange Test"
+        self.user_mgmt_page.fill_employee_name("Orange Test")
+        # Use a fixed username => "testUser1"
+        self.user_mgmt_page.fill_username("testUser1")
+        # Use a fixed password => "Passw0rd123!"
+        self.user_mgmt_page.fill_password("Passw0rd123!")
+        self.user_mgmt_page.fill_confirm_password("Passw0rd123!")
+        self.user_mgmt_page.click_save_button()
+        time.sleep(2)
+
+        # ------------------------------
+        # STEP 2: Add testUser2 (ESS, Disabled)
+        # ------------------------------
+        self.user_mgmt_page.click_add_button()
+        self.user_mgmt_page.click_top_dropdown_in_form()
+        self.user_mgmt_page.select_option_in_form("ESS")
+        self.user_mgmt_page.click_bottom_dropdown_in_form()
+        self.user_mgmt_page.select_option_in_form("Disabled")
+
+        self.user_mgmt_page.fill_employee_name("Orange Test")
+        self.user_mgmt_page.fill_username("testUser2")
+        self.user_mgmt_page.fill_password("Passw0rd123!")
+        self.user_mgmt_page.fill_confirm_password("Passw0rd123!")
+        self.user_mgmt_page.click_save_button()
+        time.sleep(2)
+
         # Validate via search
         self.user_mgmt_page.type_username_filter("testUser1")
         self.user_mgmt_page.click_search_button_filter()
@@ -53,31 +89,27 @@ class TestUserManagement:
         time.sleep(3)
         assert self.user_mgmt_page.is_user_in_table1("testUser2"), "testUser2 not found after creation"
 
-        # # Delete testUser2
-        # self.user_mgmt_page.delete_user("testUser2")
-        # assert not self.user_mgmt_page.is_user_in_table("testUser2"), "testUser2 still found after deletion"
+        # Delete testUser2
+        self.user_mgmt_page.delete_user("testUser2")
+        assert not self.user_mgmt_page.is_user_in_table("testUser2"), "testUser2 still found after deletion"
+
+
+    def test_validate_users_api_and_ui(self):
+        """
+        Validate that user data from the API matches the UI data.
+        """
+        # Fetch API data
+        api_data = get_user_records_from_api(self.user_mgmt_page.driver)
+
+        # Fetch UI data
+        ui_data = self.get_user_records_from_ui()
+
+        # # Debugging output
+        # print(f"API User Records: {api_data}")
+        # print(f"UI User Records: {ui_data}")
         #
         # # Validate API and UI data
-        # api_data = get_user_records_from_api(self.user_mgmt_page.driver)
-        # ui_data = self.get_user_records_from_ui()
-        # assert self.validate_api_and_ui_data(api_data, ui_data), "API and UI data mismatch!"
-
-    # def test_validate_users_api_and_ui(self):
-    #     """
-    #     Validate that user data from the API matches the UI data.
-    #     """
-    #     # Fetch API data
-    #     api_data = get_user_records_from_api(self.user_mgmt_page.driver)
-    #
-    #     # Fetch UI data
-    #     ui_data = self.get_user_records_from_ui()
-    #
-    #     # # Debugging output
-    #     # print(f"API User Records: {api_data}")
-    #     # print(f"UI User Records: {ui_data}")
-    #     #
-    #     # # Validate API and UI data
-        # assert self.validate_api_and_ui_data(api_data, ui_data), "API and UI data mismatch!"
+        assert self.validate_api_and_ui_data(api_data, ui_data), "API and UI data mismatch!"
 
     def get_user_records_from_ui(self):
         """
